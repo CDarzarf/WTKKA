@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shop Giày Thể Thao</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+    }
+    header {
+      background-color: #111;
+      color: #fff;
+      padding: 1rem 2rem;
+    }
+    header h1 {
+      margin: 0;
+    }
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    nav input, nav select {
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+    main {
+      padding: 2rem;
+    }
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+    .product-card {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .product-card img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+    .price {
+      color: green;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      margin: 5px;
+      border: none;
+      background-color: #333;
+      color: #fff;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #555;
+    }
+    #cartView {
+      margin-top: 30px;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Shop Giày Thể Thao</h1>
+    <nav>
+      <input type="text" id="searchInput" placeholder="Tìm kiếm giày..."/>
+      <select id="brandFilter">
+        <option value="">Tất cả hãng</option>
+        <option value="Nike">Nike</option>
+        <option value="Adidas">Adidas</option>
+        <option value="Puma">Puma</option>
+        <option value="Converse">Converse</option>
+      </select>
+      <button onclick="showCart()">Xem giỏ hàng</button>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Danh Sách Sản Phẩm</h2>
+    <div class="product-grid" id="productList"></div>
+
+    <div id="cartView" style="display:none;">
+      <h2>Giỏ hàng của bạn</h2>
+      <div id="cartItems"></div>
+      <h3 id="totalPrice">Tổng tiền: 0₫</h3>
+      <button onclick="clearCart()">Xoá giỏ hàng</button>
+    </div>
+  </main>
+
+  <footer>
+    <p style="text-align:center;">&copy; 2025 Shop Giày Thể Thao | Hotline: 0789 123 636</p>
+  </footer>
+
+  <script>
+    const products = [
+      {id: 1, name: "Nike Air Max 2025", price: 2500000, brand: "Nike", img: "https://sneakernews.com/wp-content/uploads/2023/03/nike-air-max-1-black-red-FD9082-101-1.jpg"},
+      {id: 2, name: "Adidas Ultra Boost", price: 3700000, brand: "Adidas", img: "https://footwearnews.com/wp-content/uploads/2023/02/Ultraboost_Light_Running_Shoes_White_HQ6351_01_standard-e1677164948948.jpg?resize=150"},
+      {id: 3, name: "Puma Speed Cat", price: 2500000, brand: "Puma", img: "http://pumaecom.scene7.com/is/image/PUMAECOM/301953_45_02_PNA?wid=1000"},
+      {id: 4, name: "Converse All Star", price: 1600000, brand: "Converse", img: "https://www.converse.com/dw/image/v2/BCZC_PRD/on/demandware.static/-/Sites-cnv-master-catalog/default/dw58f5ce56/images/d_107/A04689C_D_107X1.jpg?sw=2000"},
+      {id: 5, name: "Nike Revolution", price: 2200000, brand: "Nike", img: "https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/09a71d10-3fad-4500-9c00-8c14d9f6e930/revolution-6-road-running-shoes-NC0P7k.png"},
+      {id: 6, name: "Adidas ZX", price: 2100000, brand: "Adidas", img: "https://tse2.mm.bing.net/th/id/OIP._mNPyk8ieCH6SIUdFj1RkgHaHa?pid=Api&P=0&h=220"},
+      {id: 7, name: "Puma Flyer", price: 1900000, brand: "Puma", img: "https://tse3.mm.bing.net/th/id/OIP.C4k92GM88GtasWhzrQRhGgHaHa?pid=Api&P=0&h=220"},
+      {id: 8, name: "Converse Run Star", price: 2000000, brand: "Converse", img: "https://tse1.mm.bing.net/th/id/OIP.VLa4n2vso-BM1qiklTxKaQHaEv?pid=Api&P=0&h=220"},
+      {id: 9, name: "Nike Air Zoom", price: 2600000, brand: "Nike", img: "https://resize.sprintercdn.com/o/products/0396322/nike-air-zoom-pegasus-41_0396322_00_4_4123839689.jpg"},
+      {id: 10, name: "Adidas Alphabounce", price: 2300000, brand: "Adidas", img: "https://n2.sdlcdn.com/imgs/g/n/0/Adidas-Alpha-bounce-Multi-Color-SDL930881748-3-1306e.jpeg"},
+      {id: 11, name: "Puma X-Ray", price: 2000000, brand: "Puma", img: "https://tse3.mm.bing.net/th/id/OIP.qGm3gWXGZ0hHIb-nD6yypAHaHa?pid=Api&P=0&h=220"},
+      {id: 12, name: "Converse Jack Purcell", price: 1700000, brand: "Converse", img: "https://tse4.mm.bing.net/th/id/OIP.jRUeMv7vo2sIGyOidoWupAHaH9?pid=Api&P=0&h=220"},
+      {id: 13, name: "Nike Free RN", price: 2400000, brand: "Nike", img: "https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/esaiyue9akatilrubahj/free-rn-2018-mens-running-shoe-4VTnGqeZ.png"},
+      {id: 14, name: "Adidas NMD", price: 2800000, brand: "Adidas", img: "https://assets.adidas.com/images/w_1880,f_auto,q_auto/0fd9bc2bfc234ce0b69aaef900fddbdf_9366/HQ4452_01_standard.jpg"},
+      {id: 15, name: "Puma RS-X", price: 2600000, brand: "Puma", img: "https://static.netshoes.com.br/produtos/tenis-puma-rs-x-reinvention/14/D14-6142-014/D14-6142-014_zoom1.jpg?ts=1602692769"}
+    ];
+
+    function renderProducts(filterBrand = "", searchText = "") {
+      const list = document.getElementById("productList");
+      list.innerHTML = "";
+      const filtered = products.filter(p =>
+        (filterBrand === "" || p.brand === filterBrand) &&
+        p.name.toLowerCase().includes(searchText.toLowerCase())
+      );
+      for (const p of filtered) {
+        const card = document.createElement("div");
+        card.className = "product-card";
+        card.innerHTML = `
+          <img src="${p.img}" alt="${p.name}" />
+          <h3>${p.name}</h3>
+          <p class="price">${p.price.toLocaleString()}₫</p>
+          <button onclick="addToCart(${p.id})">Thêm vào giỏ</button>
+        `;
+        list.appendChild(card);
+      }
+    }
+
+    function addToCart(id) {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      cart.push(id);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      alert("Đã thêm vào giỏ!");
+    }
+
+    function showCart() {
+      const cartDiv = document.getElementById("cartView");
+      const cartItems = JSON.parse(localStorage.getItem("cart") || "[]");
+      const counts = {};
+      cartItems.forEach(id => counts[id] = (counts[id] || 0) + 1);
+      let html = "", total = 0;
+      for (let id in counts) {
+        const p = products.find(prod => prod.id == id);
+        if (p) {
+          const subtotal = p.price * counts[id];
+          html += `<p>${p.name} x ${counts[id]} = ${subtotal.toLocaleString()}₫</p>`;
+          total += subtotal;
+        }
+      }
+      document.getElementById("cartItems").innerHTML = html || "<p>Giỏ hàng trống</p>";
+      document.getElementById("totalPrice").textContent = "Tổng tiền: " + total.toLocaleString() + "₫";
+      cartDiv.style.display = "block";
+    }
+
+    function clearCart() {
+      localStorage.removeItem("cart");
+      showCart();
+    }
+
+    document.getElementById("brandFilter").addEventListener("change", e => {
+      renderProducts(e.target.value, document.getElementById("searchInput").value);
+    });
+
+    document.getElementById("searchInput").addEventListener("input", e => {
+      renderProducts(document.getElementById("brandFilter").value, e.target.value);
+    });
+
+    window.onload = () => renderProducts();
+  </script>
+</body>
+</html>
